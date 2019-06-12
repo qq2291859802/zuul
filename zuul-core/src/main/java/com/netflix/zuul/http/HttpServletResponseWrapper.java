@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
  *     <li>Records the status code set on the response.</li>
  * </ul>
  *
+ * 响应封装，增加状态码
+ *
  * User: michaels@netflix.com
  * Date: 2/19/14
  * Time: 5:56 PM

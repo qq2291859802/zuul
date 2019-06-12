@@ -16,6 +16,9 @@
 package com.netflix.zuul.monitoring;
 
 /**
+ *
+ * 基于时间监控轨迹对象
+ *
  * Time based monitoring metric.
  *
  * @author mhawthorne
@@ -23,12 +26,16 @@ package com.netflix.zuul.monitoring;
 public interface Tracer {
 
     /**
+     * 停止并记录日志
+     *
      * Stops and Logs a time based tracer
      *
      */
     void stopAndLog();
 
     /**
+     * 轨迹名称
+     *
      * Sets the name for the time based tracer
      *
      * @param name a <code>String</code> value

@@ -36,6 +36,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**
+ * 管理过滤器文件
+ *
  * This class manages the directory polling for changes and new Groovy filters.
  * Polling interval and directories are specified in the initialization of the class, and a poller will check
  * for changes and additions.
@@ -47,7 +49,7 @@ import static org.mockito.Mockito.*;
 public class FilterFileManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterFileManager.class);
-
+    // 查找文件的目录数组
     String[] aDirectories;
     int pollingIntervalSeconds;
     Thread poller;
@@ -60,6 +62,10 @@ public class FilterFileManager {
     private FilterFileManager() {
     }
 
+    /**
+     * 设置文件过滤器
+     * @param filter
+     */
     public static void setFilenameFilter(FilenameFilter filter) {
         FILENAME_FILTER = filter;
     }
@@ -99,6 +105,9 @@ public class FilterFileManager {
         bRunning = false;
     }
 
+    /**
+     * 通过一个线程定时拉取某些目录的文件，编程成过滤器对象并添加到过滤器注册器中
+     */
     void startPoller() {
         poller = new Thread("GroovyFilterFileManagerPoller") {
             public void run() {
@@ -112,11 +121,14 @@ public class FilterFileManager {
                 }
             }
         };
+        // 守护线程
         poller.setDaemon(true);
         poller.start();
     }
 
     /**
+     * 获取目录文件对象
+     *
      * Returns the directory File for a path. A Runtime Exception is thrown if the directory is in valid
      *
      * @param sPath
@@ -141,6 +153,8 @@ public class FilterFileManager {
     /**
      * Returns a List<File> of all Files from all polled directories
      *
+     * 在多个目录中过滤出指定的文件
+     *
      * @return
      */
     List<File> getFiles() {
@@ -160,6 +174,8 @@ public class FilterFileManager {
     /**
      * puts files into the FilterLoader. The FilterLoader will only addd new or changed filters
      *
+     * 将文件编译后的过滤器添加到过滤器注册器中
+     *
      * @param aFiles a List<File>
      * @throws IOException
      * @throws InstantiationException
@@ -172,6 +188,12 @@ public class FilterFileManager {
         }
     }
 
+    /**
+     * 管理过滤器源码对应的文件
+     * @throws Exception
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     */
     void manageFiles() throws Exception, IllegalAccessException, InstantiationException {
         List<File> aFiles = getFiles();
         processGroovyFiles(aFiles);

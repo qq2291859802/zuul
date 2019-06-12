@@ -18,6 +18,8 @@ package com.netflix.zuul.util;
 import java.io.*;
 
 /**
+ * 深度拷贝对象
+ *
  * Deep copy of an Object. The Object must be Serializable
  * @author Mikey Cohen
  * Date: 1/31/12

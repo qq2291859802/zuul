@@ -24,7 +24,9 @@ import com.netflix.zuul.monitoring.CounterFactory;
  * Time: 4:33 PM
  */
 public class ZuulException extends Exception {
+    // http状态码
     public int nStatusCode;
+    // 错误原因
     public String errorCause;
 
     /**

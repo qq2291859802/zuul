@@ -18,6 +18,8 @@ package com.netflix.zuul.monitoring;
 /**
  * Abstraction layer to provide counter based monitoring.
  *
+ * 监控使用的计数器工厂
+ *
  * @author mhawthorne
  */
 public abstract class CounterFactory {
@@ -34,6 +36,9 @@ public abstract class CounterFactory {
     }
 
     /**
+     *
+     * 单例模式
+     *
      * return the singleton CounterFactory instance.
      *
      * @return a <code>CounterFactory</code> value
@@ -44,6 +49,8 @@ public abstract class CounterFactory {
     }
 
     /**
+     * 计数器加一
+     *
      * Increments the counter of the given name
      *
      * @param name a <code>String</code> value

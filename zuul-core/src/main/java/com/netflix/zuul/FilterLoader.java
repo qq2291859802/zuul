@@ -53,16 +53,18 @@ public class FilterLoader {
     final static FilterLoader INSTANCE = new FilterLoader();
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterLoader.class);
-
+    // key: 文件名 ， value：文件最后修改时间戳
     private final ConcurrentHashMap<String, Long> filterClassLastModified = new ConcurrentHashMap<String, Long>();
     private final ConcurrentHashMap<String, String> filterClassCode = new ConcurrentHashMap<String, String>();
     private final ConcurrentHashMap<String, String> filterCheck = new ConcurrentHashMap<String, String>();
+
+    // key: 过滤器类型，过滤器列表（用于缓存不同类型的过滤器列表）
     private final ConcurrentHashMap<String, List<ZuulFilter>> hashFiltersByType = new ConcurrentHashMap<String, List<ZuulFilter>>();
 
     private FilterRegistry filterRegistry = FilterRegistry.instance();
-
+    // 动态代码编译器
     static DynamicCodeCompiler COMPILER;
-    
+    // filter工厂
     static FilterFactory FILTER_FACTORY = new DefaultFilterFactory();
 
     /**
@@ -89,6 +91,8 @@ public class FilterLoader {
     }
     
     /**
+     *
+     * 单例
      * @return Singleton FilterLoader
      */
     public static FilterLoader getInstance() {
@@ -114,6 +118,7 @@ public class FilterLoader {
                 filterRegistry.remove(sName);
             }
         }
+        // 从注册器中获取过滤器
         ZuulFilter filter = filterRegistry.get(sName);
         if (filter == null) {
             Class clazz = COMPILER.compile(sCode, sName);
@@ -134,6 +139,8 @@ public class FilterLoader {
 
 
     /**
+     * 编译文件中过滤器源码生成过滤器对象，并添加到过滤器注册器中
+     *
      * From a file this will read the ZuulFilter source code, compile it, and add it to the list of current filters
      * a true response means that it was successful.
      *
@@ -146,19 +153,26 @@ public class FilterLoader {
     public boolean putFilter(File file) throws Exception {
         String sName = file.getAbsolutePath() + file.getName();
         if (filterClassLastModified.get(sName) != null && (file.lastModified() != filterClassLastModified.get(sName))) {
+            // 如果文件被修改，就从注册器中移除
             LOG.debug("reloading filter " + sName);
             filterRegistry.remove(sName);
         }
+        // 获取过滤器
         ZuulFilter filter = filterRegistry.get(sName);
         if (filter == null) {
+            // 编译文件
             Class clazz = COMPILER.compile(file);
             if (!Modifier.isAbstract(clazz.getModifiers())) {
+                // 如果文件不是抽象的，就创建过滤器实例
                 filter = (ZuulFilter) FILTER_FACTORY.newInstance(clazz);
+                // 查找某种类型的过滤器列表
                 List<ZuulFilter> list = hashFiltersByType.get(filter.filterType());
                 if (list != null) {
+                    // 过滤器已经修改了，所以重建过滤器列表
                     hashFiltersByType.remove(filter.filterType()); //rebuild this list
                 }
                 filterRegistry.put(file.getAbsolutePath() + file.getName(), filter);
+                // 添加过滤器的最后一次修改时间
                 filterClassLastModified.put(sName, file.lastModified());
                 return true;
             }
@@ -168,27 +182,32 @@ public class FilterLoader {
     }
 
     /**
+     * 返回指定的过滤器类型的过滤器列表
+     *
      * Returns a list of filters by the filterType specified
      *
      * @param filterType
      * @return a List<ZuulFilter>
      */
     public List<ZuulFilter> getFiltersByType(String filterType) {
-
+        // 检查缓存
         List<ZuulFilter> list = hashFiltersByType.get(filterType);
         if (list != null) return list;
 
         list = new ArrayList<ZuulFilter>();
 
         Collection<ZuulFilter> filters = filterRegistry.getAllFilters();
+        // 查找指定类型的过滤器
         for (Iterator<ZuulFilter> iterator = filters.iterator(); iterator.hasNext(); ) {
             ZuulFilter filter = iterator.next();
             if (filter.filterType().equals(filterType)) {
                 list.add(filter);
             }
         }
+        // 根据filterOrder排序
         Collections.sort(list); // sort by priority
 
+        // 添加到缓存中
         hashFiltersByType.putIfAbsent(filterType, list);
         return list;
     }

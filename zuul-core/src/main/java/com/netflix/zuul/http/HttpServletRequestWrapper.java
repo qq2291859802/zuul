@@ -55,9 +55,11 @@ public class HttpServletRequestWrapper extends javax.servlet.http.HttpServletReq
 
     private final static HashMap<String, String[]> EMPTY_MAP = new HashMap<String, String[]>();
     protected static final Logger LOG = LoggerFactory.getLogger(HttpServletRequestWrapper.class);
-
+    // 请求对象
     private HttpServletRequest req;
+    // 内容字节数组
     private byte[] contentData = null;
+    // 请求参数
     private HashMap<String, String[]> parameters = null;
 
     private long bodyBufferingTimeNs = 0;
@@ -127,13 +129,17 @@ public class HttpServletRequestWrapper extends javax.servlet.http.HttpServletReq
         return map;
     }
 
+    /**
+     * 解析请求设置请求参数
+     * @throws IOException
+     */
     private void parseRequest() throws IOException {
         if (parameters != null)
             return; //already parsed
 
         HashMap<String, List<String>> mapA = new HashMap<String, List<String>>();
         List<String> list;
-
+        // 解析请求参数(copy)
         Map<String, List<String>> query = HTTPRequestUtils.getInstance().getQueryParams();
         if (query != null) {
             for (String key : query.keySet()) {
@@ -171,13 +177,16 @@ public class HttpServletRequestWrapper extends javax.servlet.http.HttpServletReq
                 LOG.error("Error checking if request body gzipped!", e);
             }
 
+            // post请求
             final boolean isPost = req.getMethod().equals("POST");
 
             String contentType = req.getContentType();
+            // 表单形式
             final boolean isFormBody = contentType != null && contentType.contains("application/x-www-form-urlencoded");
 
             // only does magic body param parsing for POST form bodies
             if (isPost && isFormBody) {
+                // post+表单形式
                 String enc = req.getCharacterEncoding();
 
                 if (enc == null) enc = "UTF-8";
@@ -238,6 +247,10 @@ public class HttpServletRequestWrapper extends javax.servlet.http.HttpServletReq
 
     }
 
+    /**
+     * true:表示使用分块编码
+     * @return
+     */
     private boolean shouldBufferBody() {
 
         if (LOG.isDebugEnabled()) {
@@ -252,6 +265,7 @@ public class HttpServletRequestWrapper extends javax.servlet.http.HttpServletReq
             should = true;
         }
         else if (req.getContentLength() == -1) {
+            // 在头部加入 Transfer-Encoding: chunked 之后，就代表这个报文采用了分块编码
             final String transferEncoding = req.getHeader(ZuulHeaders.TRANSFER_ENCODING);
             if (transferEncoding != null && transferEncoding.equals(ZuulHeaders.CHUNKED)) {
                 RequestContext.getCurrentContext().setChunkedRequestBody();

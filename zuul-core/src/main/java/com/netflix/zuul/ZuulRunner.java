@@ -35,6 +35,8 @@ import static org.mockito.Mockito.*;
 
 
 /**
+ *
+ * 运行器（执行过滤器的起始类）
  * This class initializes servlet requests and responses into the RequestContext and wraps the FilterProcessor calls
  * to preRoute(), route(),  postRoute(), and error() methods
  *

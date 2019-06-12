@@ -42,6 +42,9 @@ import com.netflix.zuul.context.RequestContext;
 
 /**
  * Some handy methods for workign with HTTP requests
+ *
+ *
+ * http请求工具类
  * @author Mikey Cohen
  * Date: 2/10/12
  * Time: 8:22 AM
@@ -55,6 +58,8 @@ public class HTTPRequestUtils {
 
     /**
      * Get the IP address of client making the request.
+     *
+     * 获取真实的IP地址
      *
      * Uses the "x-forwarded-for" HTTP header if available, otherwise uses the remote
      * IP of requester.
@@ -93,6 +98,8 @@ public class HTTPRequestUtils {
     }
 
     /**
+     * 单例
+     *
      * return singleton HTTPRequestUtils object
      *
      * @return a <code>HTTPRequestUtils</code> value
@@ -102,6 +109,8 @@ public class HTTPRequestUtils {
     }
 
     /**
+     * 获取请求头值
+     *
      * returns the Header value for the given sHeaderName
      *
      * @param sHeaderName a <code>String</code> value
@@ -112,6 +121,8 @@ public class HTTPRequestUtils {
     }
 
     /**
+     * 获取form表单的值
+     *
      * returns a form value from a given sHeaderName
      *
      * @param sHeaderName a <code>String</code> value
@@ -122,6 +133,8 @@ public class HTTPRequestUtils {
     }
 
     /**
+     * 将请求头转换为Map<String, List<String>>格式
+     *
      * returns headers as a Map with String keys and Lists of Strings as values
      * @return
      */
@@ -129,6 +142,7 @@ public class HTTPRequestUtils {
     public Map<String, List<String>> getRequestHeaderMap() {
         HttpServletRequest request = RequestContext.getCurrentContext().getRequest();
         Map<String,List<String>> headers = new HashMap<String,List<String>>();
+        // 请求头信息
         Enumeration<String> headerNames = request.getHeaderNames();
         if(headerNames != null) {
             while (headerNames.hasMoreElements()) {
@@ -150,6 +164,8 @@ public class HTTPRequestUtils {
     }
 
     /**
+     * 获取请求参数
+     *
      * returns query params as a Map with String keys and Lists of Strings as values
      * @return
      */
@@ -163,6 +179,7 @@ public class HTTPRequestUtils {
         qp = new LinkedHashMap<String, List<String>>();
 
         if (request.getQueryString() == null) return null;
+        // 使用&和=分割请求数据
         StringTokenizer st = new StringTokenizer(request.getQueryString(), "&");
         int i;
 
@@ -227,14 +244,18 @@ public class HTTPRequestUtils {
             if (v != null && !v.isEmpty()) sValue = v.iterator().next();
         }
         if (sValue != null) return sValue;
+        // 请求头
         sValue = getHeaderValue(sName);
         if (sValue != null) return sValue;
+        // 表单数据
         sValue = getFormValue(sName);
         if (sValue != null) return sValue;
         return null;
     }
 
     /**
+     * 请求是不是使用gzip压缩
+     *
      * return true if the client requested gzip content
      *
      * @param contentEncoding a <code>String</code> value

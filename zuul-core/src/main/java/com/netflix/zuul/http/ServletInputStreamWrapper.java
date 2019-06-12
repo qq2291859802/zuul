@@ -45,6 +45,8 @@ public class ServletInputStreamWrapper extends ServletInputStream {
             return -1;
         // I have to AND the byte with 0xff in order to ensure that it is returned as an unsigned integer
         // the lack of this was causing a weird bug when manually unzipping gzipped request bodies
+
+        // 保证是无符号整数，保证解压没有问题
         return data[idx++] & 0xff;
     }
 

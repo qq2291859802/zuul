@@ -21,12 +21,28 @@ import java.io.File;
 
 /**
  * Interface to generate Classes from source code
+ *
+ * 动态编译
+ *
  * User: mcohen
  * Date: 5/30/13
  * Time: 11:35 AM
  */
 public interface DynamicCodeCompiler {
+    /**
+     * 编译源码
+     * @param sCode 源码
+     * @param sName 类名
+     * @return
+     * @throws Exception
+     */
     Class compile(String sCode, String sName) throws Exception;
 
+    /**
+     * 编译源文件
+     * @param file
+     * @return
+     * @throws Exception
+     */
     Class compile(File file) throws Exception;
 }

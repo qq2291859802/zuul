@@ -49,6 +49,10 @@ import static org.mockito.Mockito.*;
  * <p/>
  * By default ZuulFilters are static; they don't carry state. This may be overridden by overriding the isStaticFilter() property to false
  *
+ *
+ *
+ * zuul过滤器
+ *
  * @author Mikey Cohen
  *         Date: 10/26/11
  *         Time: 4:29 PM
@@ -58,6 +62,9 @@ public abstract class ZuulFilter implements IZuulFilter, Comparable<ZuulFilter> 
     private final AtomicReference<DynamicBooleanProperty> filterDisabledRef = new AtomicReference<>();
 
     /**
+     *
+     * 过滤器类型：支持pre,post,route,error
+     *
      * to classify a filter by type. Standard types in Zuul are "pre" for pre-routing filtering,
      * "route" for routing to an origin, "post" for post-routing filters, "error" for error handling.
      * We also support a "static" type for static responses see  StaticResponseFilter.
@@ -68,6 +75,9 @@ public abstract class ZuulFilter implements IZuulFilter, Comparable<ZuulFilter> 
     abstract public String filterType();
 
     /**
+     *
+     * 过滤器的优先级
+     *
      * filterOrder() must also be defined for a filter. Filters may have the same  filterOrder if precedence is not
      * important for a filter. filterOrders do not need to be sequential.
      *
@@ -76,6 +86,9 @@ public abstract class ZuulFilter implements IZuulFilter, Comparable<ZuulFilter> 
     abstract public int filterOrder();
 
     /**
+     *
+     *
+     *
      * By default ZuulFilters are static; they don't carry state. This may be overridden by overriding the isStaticFilter() property to false
      *
      * @return true by default
@@ -85,6 +98,9 @@ public abstract class ZuulFilter implements IZuulFilter, Comparable<ZuulFilter> 
     }
 
     /**
+     *
+     * 过滤器失效的属性名：zuul.[classname].[filtertype].disable
+     *
      * The name of the Archaius property to disable this filter. by default it is zuul.[classname].[filtertype].disable
      *
      * @return
@@ -94,16 +110,23 @@ public abstract class ZuulFilter implements IZuulFilter, Comparable<ZuulFilter> 
     }
 
     /**
+     *
+     * 判断过滤器是不是失效
+     *
+     *
      * If true, the filter has been disabled by archaius and will not be run
      *
      * @return
      */
     public boolean isFilterDisabled() {
+
         filterDisabledRef.compareAndSet(null, DynamicPropertyFactory.getInstance().getBooleanProperty(disablePropertyName(), false));
         return filterDisabledRef.get().get();
     }
 
     /**
+     * 执行过滤器
+     *
      * runFilter checks !isFilterDisabled() and shouldFilter(). The run() method is invoked if both are true.
      *
      * @return the return from ZuulFilterResult
@@ -111,25 +134,41 @@ public abstract class ZuulFilter implements IZuulFilter, Comparable<ZuulFilter> 
     public ZuulFilterResult runFilter() {
         ZuulFilterResult zr = new ZuulFilterResult();
         if (!isFilterDisabled()) {
+            // 过滤器有效
             if (shouldFilter()) {
+                // 应该执行该过滤器
+
+                // 开始记录轨迹
                 Tracer t = TracerFactory.instance().startMicroTracer("ZUUL::" + this.getClass().getSimpleName());
                 try {
+                    // 运行过滤器并返回结果
                     Object res = run();
+                    // 封装成Zuul过滤器结果对象(成功)
                     zr = new ZuulFilterResult(res, ExecutionStatus.SUCCESS);
                 } catch (Throwable e) {
+                    // 设置轨迹名称
                     t.setName("ZUUL::" + this.getClass().getSimpleName() + " failed");
+
+                    // 封装成Zuul过滤器结果对象(异常)
                     zr = new ZuulFilterResult(ExecutionStatus.FAILED);
                     zr.setException(e);
                 } finally {
+                    // 停止轨迹记录
                     t.stopAndLog();
                 }
             } else {
+                // 如果不执行就表示跳过
                 zr = new ZuulFilterResult(ExecutionStatus.SKIPPED);
             }
         }
         return zr;
     }
 
+    /**
+     * 根据filterOrder排序
+     * @param filter
+     * @return
+     */
     public int compareTo(ZuulFilter filter) {
         return Integer.compare(this.filterOrder(), filter.filterOrder());
     }

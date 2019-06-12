@@ -1,6 +1,11 @@
 package com.netflix.zuul;
 
 /**
+ *
+ *
+ * 过滤器工厂
+ *
+ *
  * Interface to provide instances of ZuulFilter from a given class.
  */
 public interface FilterFactory {

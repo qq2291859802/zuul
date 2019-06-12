@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * 计数器
+ *
  * Plugin to hook up a Servo counter to the CounterFactory
  * @author Mikey Cohen
  * Date: 4/10/13
@@ -43,8 +45,14 @@ public class Counter extends CounterFactory {
         counter.increment();
     }
 
+    /**
+     * 根据名字获取计数器
+     * @param name
+     * @return
+     */
     private BasicCounter getCounter(String name) {
         BasicCounter counter = map.get(name);
+        // double check
         if (counter == null) {
             synchronized (lock) {
                 counter = map.get(name);
@@ -53,10 +61,13 @@ public class Counter extends CounterFactory {
                 }
 
                 List<Tag> tags = new ArrayList<Tag>(2);
+                // tag信息
                 tags.add(InjectableTag.HOSTNAME);
                 tags.add(InjectableTag.IP);
                 counter = new BasicCounter(MonitorConfig.builder(name).withTags(tags).build());
+                // 添加计数器
                 map.putIfAbsent(name, counter);
+                // 注册计数器监控
                 DefaultMonitorRegistry.getInstance().register(counter);
             }
         }

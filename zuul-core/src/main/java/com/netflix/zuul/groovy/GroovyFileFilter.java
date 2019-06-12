@@ -32,6 +32,9 @@ import static org.mockito.Mockito.when;
 /**
  * Filters only .groovy files
  *
+ * Groovy文件过滤(*.groovy)
+ *
+ *
  * @author Mikey Cohen
  * Date: 5/30/13
  * Time: 11:47 AM

@@ -33,6 +33,9 @@ import static org.mockito.Mockito.spy;
 
 /**
  * Groovy code compiler
+ *
+ * Groovy是构建在JVM上的一个轻量级却强大的动态语言
+ *
  * User: mcohen
  * Date: 5/30/13
  * Time: 11:38 AM
@@ -58,6 +61,8 @@ public class GroovyCompiler implements DynamicCodeCompiler {
     }
 
     /**
+     *
+     * Groovy类加载器
      * @return a new GroovyClassLoader
      */
     GroovyClassLoader getGroovyClassLoader() {
@@ -74,6 +79,7 @@ public class GroovyCompiler implements DynamicCodeCompiler {
     @Override
     public Class compile(File file) throws IOException {
         GroovyClassLoader loader = getGroovyClassLoader();
+        // 加载文件
         Class groovyClass = loader.parseClass(file);
         return groovyClass;
     }

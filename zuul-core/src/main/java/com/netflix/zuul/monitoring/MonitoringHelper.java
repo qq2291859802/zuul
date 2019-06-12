@@ -16,6 +16,8 @@
 package com.netflix.zuul.monitoring;
 
 /**
+ * 监控的虚拟实现(空实现)
+ *
  * Dummy implementations of CounterFactory, TracerFactory, and Tracer
  * @author mhawthorne
  */

@@ -7,6 +7,8 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 过滤器注册器（通过map）
+ *
  * @author mhawthorne
  */
 public class FilterRegistry {
@@ -17,6 +19,7 @@ public class FilterRegistry {
         return INSTANCE;
     }
 
+    // key:过滤器的标识，value:过滤器
     private final ConcurrentHashMap<String, ZuulFilter> filters = new ConcurrentHashMap<String, ZuulFilter>();
 
     private FilterRegistry() {

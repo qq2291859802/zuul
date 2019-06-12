@@ -63,16 +63,20 @@ public class ZuulServlet extends HttpServlet {
     @Override
     public void service(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse) throws ServletException, IOException {
         try {
+            // 包装http请求和响应对象
             init((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse);
 
             // Marks this request as having passed through the "Zuul engine", as opposed to servlets
             // explicitly bound in web.xml, for which requests will not have the same data attached
             RequestContext context = RequestContext.getCurrentContext();
+            // 表示zuul已经在执行
             context.setZuulEngineRan();
 
             try {
+                // 执行路由的前置过滤器
                 preRoute();
             } catch (ZuulException e) {
+                // 如果执行出错，先执行错误处理，再执行后置过滤器
                 error(e);
                 postRoute();
                 return;
@@ -141,7 +145,9 @@ public class ZuulServlet extends HttpServlet {
      * @param e
      */
     void error(ZuulException e) {
+        // 设置异常信息
         RequestContext.getCurrentContext().setThrowable(e);
+
         zuulRunner.error();
     }
 

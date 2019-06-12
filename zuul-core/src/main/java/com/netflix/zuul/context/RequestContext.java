@@ -45,6 +45,9 @@ import com.netflix.zuul.constants.ZuulHeaders;
 import com.netflix.zuul.util.DeepCopy;
 
 /**
+ * 包含请求过程中常见的对象
+ *
+ *
  * The Request Context holds request, response,  state information and data for ZuulFilters to access and share.
  * The RequestContext lives for the duration of the request and is ThreadLocal.
  * extensions of RequestContext can be substituted by setting the contextClass.

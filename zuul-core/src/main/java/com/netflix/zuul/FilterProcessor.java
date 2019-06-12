@@ -40,6 +40,9 @@ import static org.mockito.Mockito.*;
 /**
  * This the the core class to execute filters.
  *
+ *
+ * filter执行器
+ *
  * @author Mikey Cohen
  *         Date: 10/24/11
  *         Time: 12:47 PM
@@ -48,7 +51,7 @@ public class FilterProcessor {
 
     static FilterProcessor INSTANCE = new FilterProcessor();
     protected static final Logger logger = LoggerFactory.getLogger(FilterProcessor.class);
-
+    // 过滤器结果通知
     private FilterUsageNotifier usageNotifier;
 
 
@@ -57,6 +60,7 @@ public class FilterProcessor {
     }
 
     /**
+     * 单例模式
      * @return the singleton FilterProcessor
      */
     public static FilterProcessor getInstance() {
@@ -82,6 +86,9 @@ public class FilterProcessor {
     }
 
     /**
+     * 执行路由的后置过滤器
+     *
+     *
      * runs "post" filters which are called after "route" filters. ZuulExceptions from ZuulFilters are thrown.
      * Any other Throwables are caught and a ZuulException is thrown out with a 500 status code
      *
@@ -139,9 +146,11 @@ public class FilterProcessor {
     }
 
     /**
+     *
+     * 运行某种类型的所有过滤器
      * runs all filters of the filterType sType/ Use this method within filters to run custom filters by type
      *
-     * @param sType the filterType.
+     * @param sType 过滤器类型
      * @return
      * @throws Throwable throws up an arbitrary exception
      */
@@ -150,12 +159,15 @@ public class FilterProcessor {
             Debug.addRoutingDebug("Invoking {" + sType + "} type filters");
         }
         boolean bResult = false;
+        // 获取指定类型的过滤器列表(已经排序)
         List<ZuulFilter> list = FilterLoader.getInstance().getFiltersByType(sType);
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {
                 ZuulFilter zuulFilter = list.get(i);
+                // 执行过滤器
                 Object result = processZuulFilter(zuulFilter);
                 if (result != null && result instanceof Boolean) {
+                    // 如果结果是布尔类型
                     bResult |= ((Boolean) result);
                 }
             }
@@ -164,6 +176,8 @@ public class FilterProcessor {
     }
 
     /**
+     * 执行过滤器，并记录状态和通知
+     *
      * Processes an individual ZuulFilter. This method adds Debug information. Any uncaught Thowables are caught by this method and converted to a ZuulException with a 500 status code.
      *
      * @param filter
@@ -179,6 +193,7 @@ public class FilterProcessor {
         String filterName = "";
         try {
             long ltime = System.currentTimeMillis();
+            // 过滤器名字
             filterName = filter.getClass().getSimpleName();
             
             RequestContext copy = null;
@@ -189,17 +204,22 @@ public class FilterProcessor {
                 Debug.addRoutingDebug("Filter " + filter.filterType() + " " + filter.filterOrder() + " " + filterName);
                 copy = ctx.copy();
             }
-            
+            // 执行过滤器
             ZuulFilterResult result = filter.runFilter();
+            // 获取执行状态
             ExecutionStatus s = result.getStatus();
+            // 执行时间
             execTime = System.currentTimeMillis() - ltime;
 
             switch (s) {
                 case FAILED:
+                    // 执行失败
                     t = result.getException();
+                    // context中添加过滤器的执行结果
                     ctx.addFilterExecutionSummary(filterName, ExecutionStatus.FAILED.name(), execTime);
                     break;
                 case SUCCESS:
+                    // 执行成功
                     o = result.getResult();
                     ctx.addFilterExecutionSummary(filterName, ExecutionStatus.SUCCESS.name(), execTime);
                     if (bDebug) {
@@ -210,9 +230,9 @@ public class FilterProcessor {
                 default:
                     break;
             }
-            
+            // 抛出异常
             if (t != null) throw t;
-
+            // 过滤器结果通知
             usageNotifier.notify(filter, s);
             return o;
 
@@ -220,11 +240,15 @@ public class FilterProcessor {
             if (bDebug) {
                 Debug.addRoutingDebug("Running Filter failed " + filterName + " type:" + filter.filterType() + " order:" + filter.filterOrder() + " " + e.getMessage());
             }
+            // 过滤器结果通知
             usageNotifier.notify(filter, ExecutionStatus.FAILED);
             if (e instanceof ZuulException) {
+                // ZuulException
                 throw (ZuulException) e;
             } else {
+                // 转换为ZuulException
                 ZuulException ex = new ZuulException(e, "Filter threw Exception", 500, filter.filterType() + ":" + filterName);
+                // 添加过滤器执行结果
                 ctx.addFilterExecutionSummary(filterName, ExecutionStatus.FAILED.name(), execTime);
                 throw ex;
             }
@@ -232,6 +256,8 @@ public class FilterProcessor {
     }
 
     /**
+     * 过滤器通知
+     *
      * Publishes a counter metric for each filter on each use.
      */
     public static class BasicFilterUsageNotifier implements FilterUsageNotifier {
@@ -239,6 +265,7 @@ public class FilterProcessor {
 
         @Override
         public void notify(ZuulFilter filter, ExecutionStatus status) {
+            // 动态计数
             DynamicCounter.increment(METRIC_PREFIX + filter.getClass().getSimpleName(), "status", status.name(), "filtertype", filter.filterType());
         }
     }

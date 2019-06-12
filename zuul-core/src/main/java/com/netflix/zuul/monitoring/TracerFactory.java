@@ -19,6 +19,8 @@ package com.netflix.zuul.monitoring;
 /**
  * Abstraction layer to provide time-based monitoring.
  *
+ * 提供基于时间的监控（打点的形式）
+ *
  * @author mhawthorne
  */
 public abstract class TracerFactory {
@@ -45,6 +47,11 @@ public abstract class TracerFactory {
         return INSTANCE;
     }
 
+    /**
+     * 核心方法：开始记录轨迹信息
+     * @param name
+     * @return
+     */
     public abstract Tracer startMicroTracer(String name);
 
 }

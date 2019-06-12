@@ -26,6 +26,8 @@ import java.io.IOException;
 /**
  * Manages Zuul <code>RequestContext</code> lifecycle.
  *
+ * 管理RequestContext的生命周期
+ *
  * @author mhawthorne
  */
 public class ContextLifecycleFilter implements Filter {
@@ -39,6 +41,7 @@ public class ContextLifecycleFilter implements Filter {
         try {
             chain.doFilter(req, res);
         } finally {
+            // 销毁RequestContext中的核心数据
             RequestContext.getCurrentContext().unset();
         }
     }

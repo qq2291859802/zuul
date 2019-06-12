@@ -38,6 +38,10 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
+ *
+ * 使用过滤器的方式，效果和com.netflix.zuul.http.ZuulServlet是一样的(需要在web.xml中配置)
+ * @see com.netflix.zuul.http.ZuulServlet
+ *
  * Zuul Servlet filter to run Zuul within a Servlet Filter. The filter invokes pre-routing filters first,
  * then routing filters, then post routing filters. Handled exceptions in pre-routing and routing
  * call the error filters, then call post-routing filters. Errors in post-routing only invoke the error filters.

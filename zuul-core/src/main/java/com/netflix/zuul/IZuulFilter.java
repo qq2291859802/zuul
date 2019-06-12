@@ -20,12 +20,17 @@ import com.netflix.zuul.exception.ZuulException;
 /**
  * BAse interface for ZuulFilters
  *
+ * 过滤器接口
+ *
  * @author Mikey Cohen
  *         Date: 10/27/11
  *         Time: 3:03 PM
  */
 public interface IZuulFilter {
     /**
+     *
+     * 过滤器是否应该执行，true表示应该，false表示跳过
+     *
      * a "true" return from this method means that the run() method should be invoked
      *
      * @return true if the run() method should be invoked. false will not invoke the run() method
@@ -33,6 +38,9 @@ public interface IZuulFilter {
     boolean shouldFilter();
 
     /**
+     *
+     * 执行过滤器
+     *
      * if shouldFilter() is true, this method will be invoked. this method is the core method of a ZuulFilter
      *
      * @return Some arbitrary artifact may be returned. Current implementation ignores it.
