@@ -21,6 +21,7 @@ import com.netflix.config.DynamicStringProperty
 import com.netflix.zuul.ZuulFilter
 import com.netflix.zuul.constants.ZuulConstants
 import com.netflix.zuul.context.RequestContext
+import org.slf4j.impl.StaticLoggerBinder
 
 class DebugFilter extends ZuulFilter {
 
